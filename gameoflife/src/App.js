@@ -4,7 +4,7 @@ import React, {useState, useEffect, useRef} from 'react';
 const CANVAS_WIDTH = window.innerWidth;
 const CANVAS_HEIGHT = window.innerHeight;
 
-const CELL_SIZE = 20;
+const CELL_SIZE = 10;
 const CELL_ALIVE_COLOUR = "#000000"
 const CELL_DEAD_COLOUR = "#FFFFFF"
 const TIMESTEP = 50;
@@ -12,7 +12,7 @@ const TIMESTEP = 50;
 let gameGrid;
 
 class Cell {
-    constructor(ctx, x, y, alive) {
+    constructor(ctx, x, y) {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
@@ -40,13 +40,9 @@ class Cell {
         }
 
         if (this.alive) {
-            if (aliveNeighbours < 2 || aliveNeighbours > 3) {
-                this.alive = false;
-            }
+            this.alive = (aliveNeighbours < 2 || aliveNeighbours > 3) ? false : true;
         } else {
-            if (aliveNeighbours === 3) {
-                this.alive = true;
-            }
+            this.alive = (aliveNeighbours === 3) ? true : false;
         }
     }
 }
@@ -58,7 +54,7 @@ function initialiseGrid(ctx, initXSize, initYSize) {
     }
     for (let x = 0; x < newGameGrid.length; x++) {
         for (let y = 0; y < newGameGrid[x].length; y++) {
-            newGameGrid[x][y] = new Cell(ctx, x, y, true)
+            newGameGrid[x][y] = new Cell(ctx, x, y)
         }
     }
     return newGameGrid;
@@ -70,7 +66,7 @@ function App() {
     useEffect(()=>{
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        gameGrid = initialiseGrid(ctx, 40, 40);
+        gameGrid = initialiseGrid(ctx, 80, 80);
 
         const render = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
