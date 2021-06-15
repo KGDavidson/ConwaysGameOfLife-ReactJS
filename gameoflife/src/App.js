@@ -1,19 +1,22 @@
 import './App.css';
 import React, {useState, useEffect, useRef} from 'react';
 
-const canvasWidth = window.innerWidth;
-const canvasHeight = window.innerHeight;
-let gameGrid;
+const CANVAS_WIDTH = window.innerWidth;
+const CANVAS_HEIGHT = window.innerHeight;
+
 const CELL_SIZE = 20;
-const CELL_ALIVE_COLOUR = "#FFFFFF"
-const CELL_DEAD_COLOUR = "#000000"
+const CELL_ALIVE_COLOUR = "#000000"
+const CELL_DEAD_COLOUR = "#FFFFFF"
+const TIMESTEP = 50;
+
+let gameGrid;
 
 class Cell {
     constructor(ctx, x, y, alive) {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
-        this.alive = Math.random() < 0.95;
+        this.alive = Math.random() > 0.9;
         this.aliveColour = CELL_ALIVE_COLOUR;
         this.deadColour = CELL_DEAD_COLOUR;
     }
@@ -26,11 +29,23 @@ class Cell {
         this.ctx.fill();
         this.ctx.translate(-this.x, -this.y);
     }
-    checkNeighbours() {
-        let aliveNeighbours = 0;
+    checkNeighbours(gameGrid) {
+        let aliveNeighbours = -1 * (this.alive ? 1 : 0);
         for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
-                
+                try {
+                    aliveNeighbours += (gameGrid[this.x + i][this.y + j].alive ? 1 : 0);
+                } catch (e) {}
+            }
+        }
+
+        if (this.alive) {
+            if (aliveNeighbours < 2 || aliveNeighbours > 3) {
+                this.alive = false;
+            }
+        } else {
+            if (aliveNeighbours === 3) {
+                this.alive = true;
             }
         }
     }
@@ -56,11 +71,9 @@ function App() {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
         gameGrid = initialiseGrid(ctx, 40, 40);
-        console.log(gameGrid);
 
-        const render = ()=>{
+        const render = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             
             for (let x = 0; x < gameGrid.length; x++) {
                 for (let y = 0; y < gameGrid[x].length; y++) {
@@ -69,31 +82,16 @@ function App() {
                 }
             }
 
-            /*for (var i = 0; i < boids.length; i++) {
-                let boidsNearX = [];
-                let boidsNearY = [];
-                for (var j = 0; j < boids.length; j++) {
-                    let distance = Math.sqrt(Math.pow(boids[i].x - boids[j].x, 2) + Math.pow(boids[i].y - boids[j].y, 2))
-                    if (boids[i] !== boids[j] && Math.abs(distance) < boids[i].checkRadius) {
-                        boids[i].drawSpecialLine(boids[j]);
-                        boidsNearX.push(boids[j].x);
-                        boidsNearY.push(boids[j].y);
-                        boids[i].alignment(boids[j]);
-                        boids[i].separation(boids[j]);
-                    }
-                }
-                boids[i].cohesion(boidsNearX, boidsNearY);
-                boids[i].draw();
-                boids[i].move();
-                boids[i].wallCheck();
-            }*/
-
-            requestAnimationFrame(render);
+            if (TIMESTEP <= 10) {
+                requestAnimationFrame(render);
+            } else {
+                setTimeout(() => {render()}, TIMESTEP);
+            }
         }
         render();
     }, []);
 
-    return (<canvas id="canvas" ref={canvasRef} width={canvasWidth} height={canvasHeight}></canvas>);
+    return (<canvas id="canvas" ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT}></canvas>);
 }
 
 export default App;
