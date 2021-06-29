@@ -4,10 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 const CANVAS_WIDTH = window.innerWidth;
 const CANVAS_HEIGHT = window.innerHeight;
 
-const CELL_SIZE = 10;
+const CELL_SIZE = 20;
 const CELL_ALIVE_COLOUR = "#000000";
 const CELL_DEAD_COLOUR = "#FFFFFF";
-const CELL_PAUSED_COLOUR = "#999999";
+const CELL_PAUSED_COLOUR = CELL_ALIVE_COLOUR; //"#999999";
 const TIMESTEP = 50;
 
 let gameGrid;
